@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('What does &quot;' + ${t.term} + '&quot; mean? Teen slang explained for parents | TeenRadar', ${t.term} + ': ' + ${t.meaning})}"></head>
+<body class="bg-slate-50 text-slate-900">
+<nav th:replace="~{layout :: nav(false)}"></nav>
+
+<main class="max-w-3xl mx-auto px-4">
+    <a href="/" class="text-sm text-indigo-600 hover:underline">← All trends</a>
+    <article class="mt-4 bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
+        <p class="text-sm text-slate-500">What does it mean when your kid says</p>
+        <h1 class="text-4xl font-extrabold mt-1" th:text="${t.term}">rizz</h1>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <span class="text-sm font-semibold px-3 py-1 rounded-full" th:classappend="'risk-' + ${t.risk}"
+                  th:text="${t.risk.name() == 'RED'} ? '🔴 Possible danger' : (${t.risk.name() == 'YELLOW'} ? '🟡 Worth a check-in' : '🟢 Harmless')">🟢 Harmless</span>
+            <span th:if="${t.verified}" class="text-sm font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700">✔ Verified</span>
+        </div>
+        <h2 class="mt-6 text-sm font-semibold text-slate-500 uppercase tracking-wide">Meaning</h2>
+        <p class="mt-1 text-lg" th:text="${t.meaning}">meaning</p>
+        <th:block th:if="${t.why}">
+            <h2 class="mt-6 text-sm font-semibold text-slate-500 uppercase tracking-wide">Should I worry?</h2>
+            <p class="mt-1" th:text="${t.why}">why</p>
+        </th:block>
+        <div th:if="${t.howToTalk}" class="mt-6 p-4 rounded-xl bg-indigo-50">
+            <h2 class="text-sm font-semibold text-indigo-700 uppercase tracking-wide">💬 What you can say</h2>
+            <p class="mt-1" th:text="${t.howToTalk}">how</p>
+        </div>
+    </article>
+
+    <section class="mt-8 bg-slate-900 text-white rounded-2xl p-6 text-center">
+        <h2 class="text-xl font-bold">Got a whole message you don't get?</h2>
+        <p class="text-slate-300 mt-1">Paste it in. We'll translate it and flag anything risky in seconds.</p>
+        <a href="/#decoder" class="inline-block mt-4 px-6 py-3 rounded-xl bg-indigo-500 font-semibold hover:bg-indigo-400">Decode a message, free</a>
+    </section>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

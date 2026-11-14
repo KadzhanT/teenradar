@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title, description)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title}">TeenRadar</title>
+    <meta name="description" th:content="${description}">
+    <meta property="og:title" th:content="${title}">
+    <meta property="og:description" th:content="${description}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <style>
+        body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+        .risk-GREEN { background: #dcfce7; color: #166534; }
+        .risk-YELLOW { background: #fef9c3; color: #854d0e; }
+        .risk-RED { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+<nav th:fragment="nav(premium)" class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+    <a href="/" class="font-extrabold text-xl tracking-tight">📡 Teen<span class="text-indigo-600">Radar</span></a>
+    <span th:if="${premium}" class="text-sm font-semibold px-3 py-1 rounded-full bg-indigo-100 text-indigo-700">★ Premium</span>
+    <a th:unless="${premium}" href="/#premium" data-open-premium class="text-sm font-semibold px-4 py-2 rounded-full bg-slate-900 text-white hover:bg-slate-700">Go Premium</a>
+</nav>
+<footer th:fragment="footer" class="max-w-5xl mx-auto px-4 py-10 text-sm text-slate-500 border-t border-slate-200 mt-16">
+    <p><b>If you think your child is in immediate danger, call 911.</b> Suicide &amp; Crisis Lifeline: call or text <b>988</b>.
+        Sextortion: report at <a class="underline" href="https://tips.fbi.gov" rel="noopener">tips.fbi.gov</a> or
+        <a class="underline" href="https://report.cybertip.org" rel="noopener">CyberTipline</a>.</p>
+    <p class="mt-2">TeenRadar explains slang with AI plus a curated list of known codes. It can be wrong; context always matters. Not a substitute for professional advice.</p>
+</footer>
+</body>
+</html>

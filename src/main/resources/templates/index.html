@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('TeenRadar: know what your kid is really saying', 'Paste a text or screenshot from your teen. TeenRadar translates the slang, flags real danger like fentanyl and sextortion codes, and tells you what to say. No spying.')}"></head>
+<body class="bg-slate-50 text-slate-900" th:data-free-limit="${freeLimit}">
+<nav th:replace="~{layout :: nav(${premium})}"></nav>
+
+<main class="max-w-5xl mx-auto px-4">
+    <section class="pt-8 pb-6 text-center">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Know what your kid is <span class="text-indigo-600">really</span> saying.</h1>
+        <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Paste a text, a caption or a screenshot. We translate the slang, flag real danger, and tell you what to say. Without spying on their phone.</p>
+    </section>
+
+    <div th:if="${param.premium != null and param.premium[0] == '1'}" class="mb-6 p-4 rounded-xl bg-indigo-50 text-indigo-800 text-center font-semibold">★ Welcome to Premium. Unlimited decodes and screenshots are on.</div>
+    <div th:if="${param.premium != null and param.premium[0] == '0'}" class="mb-6 p-4 rounded-xl bg-yellow-50 text-yellow-800 text-center">Payment was not completed. You can try again any time.</div>
+
+    <!-- Decoder -->
+    <section id="decoder" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+        <form id="decode-form" class="space-y-3">
+            <label for="text" class="font-semibold">Message from your kid</label>
+            <textarea id="text" name="text" rows="3" maxlength="2000" placeholder="e.g. bro got the 🔌 pull up tonight no cap 💀"
+                      class="w-full rounded-xl border border-slate-300 p-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+            <div class="flex flex-wrap gap-2 text-sm" aria-label="Examples">
+                <span class="text-slate-500 py-1">Try:</span>
+                <button type="button" data-sample="that test was so mid kms 💀" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">that test was so mid kms 💀</button>
+                <button type="button" data-sample="bro got the 🔌 for percs, pull up tonight" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">bro got the 🔌 for percs</button>
+                <button type="button" data-sample="he said wttp and to delete the chat after, PIR rn" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">he said wttp… PIR rn</button>
+                <button type="button" data-sample="6 7 💀 his aura is crazy no cap, he has so much rizz" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">6 7 his aura is crazy</button>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 justify-between pt-1">
+                <label class="text-sm text-slate-600 cursor-pointer">
+                    <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp" class="text-sm file:mr-2 file:rounded-full file:border-0 file:bg-slate-100 file:px-3 file:py-1">
+                    <span class="ml-1 text-xs font-semibold text-indigo-600">Screenshot = Premium</span>
+                </label>
+                <div class="flex items-center gap-3">
+                    <span id="remaining" class="text-sm text-slate-500" th:unless="${premium}" th:text="${freeLimit} + ' free decodes a day'"></span>
+                    <button id="decode-btn" type="submit" class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-50">Decode</button>
+                </div>
+            </div>
+        </form>
+        <p id="error" class="hidden mt-4 p-3 rounded-xl bg-red-50 text-red-700" role="alert"></p>
+
+        <div id="result" class="hidden mt-6 space-y-4" aria-live="polite">
+            <div id="overall" class="p-4 rounded-xl font-bold text-lg"></div>
+            <div>
+                <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">In plain English</h3>
+                <p id="translation" class="mt-1 text-lg"></p>
+            </div>
+            <ul id="terms" class="space-y-2"></ul>
+            <div class="p-4 rounded-xl bg-indigo-50">
+                <h3 class="text-sm font-semibold text-indigo-700 uppercase tracking-wide">💬 What you can say</h3>
+                <p id="how" class="mt-1 text-slate-800"></p>
+            </div>
+            <p id="crisis" class="hidden p-3 rounded-xl bg-red-50 text-red-800 text-sm">If you think your child is in danger right now, call 911. For thoughts of suicide or self-harm, call or text <b>988</b> (24/7).</p>
+        </div>
+    </section>
+
+    <!-- Alerts -->
+    <section class="mt-12">
+        <h2 class="text-2xl font-bold">🚨 Codes every parent should know</h2>
+        <p class="text-slate-600 mt-1">Verified codes for drugs, sextortion and self-harm. These override the AI whenever they show up.</p>
+        <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <a th:each="a : ${alerts}" th:href="@{/t/{s}(s=${a.slug})}" class="block bg-white rounded-xl border border-red-200 p-4 hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-lg" th:text="${a.term}">perc</span>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-full risk-RED">red</span>
+                </div>
+                <p class="mt-1 text-sm text-slate-600" th:text="${a.meaning}">meaning</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Feed -->
+    <section class="mt-12">
+        <h2 class="text-2xl font-bold">📈 What kids are saying this week</h2>
+        <p class="text-slate-600 mt-1">Updated daily from the web, plus what other parents are decoding right now.</p>
+        <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <a th:each="f : ${feed}" th:href="@{/t/{s}(s=${f.row.slug})}" class="block bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-lg" th:text="${f.row.term}">rizz</span>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-full" th:classappend="'risk-' + ${f.row.risk}" th:text="${#strings.toLowerCase(f.row.risk)}">green</span>
+                </div>
+                <p class="mt-1 text-sm text-slate-600" th:text="${f.row.meaning}">meaning</p>
+                <p class="mt-2 text-xs text-slate-500" th:if="${f.row.hits > 0}">
+                    <span th:text="'Asked ' + ${f.row.hits} + '× by parents this week'"></span>
+                    <span th:if="${f.growth}" class="ml-1 font-bold text-indigo-600" th:text="${f.growth}"></span>
+                </p>
+                <p class="mt-2 text-xs text-slate-400" th:if="${f.row.hits == 0 and f.row.source == 'INGEST'}">🆕 New on the radar</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Subscribe -->
+    <section class="mt-12 bg-slate-900 text-white rounded-2xl p-6 sm:p-8">
+        <h2 class="text-2xl font-bold">Get the 2-minute weekly brief</h2>
+        <p class="text-slate-300 mt-1">New slang and new danger codes, before your kid uses them. Free.</p>
+        <form id="subscribe-form" class="mt-4 flex flex-col sm:flex-row gap-3">
+            <input id="email" type="email" required placeholder="you@email.com" aria-label="Email"
+                   class="flex-1 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <button class="px-6 py-3 rounded-xl bg-indigo-500 font-semibold hover:bg-indigo-400">Subscribe</button>
+        </form>
+        <p id="subscribe-msg" class="mt-3 text-sm text-slate-300" role="status"></p>
+    </section>
+</main>
+
+<!-- Premium modal -->
+<div id="premium-modal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="premium-title">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+        <p id="paywall-reason" class="text-sm text-indigo-700 font-semibold"></p>
+        <h2 id="premium-title" class="text-2xl font-extrabold mt-1">TeenRadar Premium</h2>
+        <p class="text-3xl font-extrabold mt-3">$5.99<span class="text-base font-medium text-slate-500">/month</span></p>
+        <ul class="mt-4 space-y-2 text-slate-700">
+            <li>✅ Unlimited decodes</li>
+            <li>✅ Decode screenshots of whole chats</li>
+            <li>✅ Alerts when a new danger code starts spreading</li>
+            <li>✅ "What to say" scripts for every topic</li>
+        </ul>
+        <button id="checkout-btn" class="mt-6 w-full px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-50">Start Premium</button>
+        <p class="mt-3 text-xs text-slate-500 text-center">Demo uses Stripe test mode: card <b>4242 4242 4242 4242</b>, any future date, any CVC.</p>
+        <button data-close-premium class="mt-3 w-full text-sm text-slate-500 hover:text-slate-800">Maybe later</button>
+    </div>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script src="/app.js"></script>
+</body>
+</html>

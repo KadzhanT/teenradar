@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: teenradar
+  config:
+    # local secrets live in .env (gitignored); on Render the real env vars are used
+    import: optional:file:.env[.properties]
+  datasource:
+    # Neon: jdbc:postgresql://<host>/<db>?sslmode=require
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:pg}
+    hikari:
+      maximum-pool-size: 5
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  servlet:
+    multipart:
+      max-file-size: 4MB
+      max-request-size: 5MB
+
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  admin-token: ${ADMIN_TOKEN:}
+  free-decodes-per-day: 3
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+    daily-cap: ${GEMINI_DAILY_CAP:1000}
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:}
+    price-cents: 599
+  resend:
+    api-key: ${RESEND_API_KEY:}
+    from: ${MAIL_FROM:TeenRadar <onboarding@resend.dev>}
