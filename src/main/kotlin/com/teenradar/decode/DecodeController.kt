@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -44,6 +45,9 @@ class ApiErrors {
 
     @ExceptionHandler
     fun badInput(e: IllegalArgumentException) = ResponseEntity.badRequest().body(ApiError(e.message ?: "Bad request"))
+
+    @ExceptionHandler
+    fun badJson(e: HttpMessageNotReadableException) = ResponseEntity.badRequest().body(ApiError("Malformed request."))
 
     @ExceptionHandler
     fun tooBig(e: MaxUploadSizeExceededException) = ResponseEntity.badRequest().body(ApiError("Screenshot is too big (max 4 MB)."))

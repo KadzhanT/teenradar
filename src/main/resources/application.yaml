@@ -36,8 +36,8 @@ app:
   free-decodes-per-day: 3
   gemini:
     api-key: ${GEMINI_API_KEY:}
-    model: ${GEMINI_MODEL:gemini-2.5-flash}
-    daily-cap: ${GEMINI_DAILY_CAP:1000}
+    model: ${GEMINI_MODEL:gemini-3.5-flash-lite}
+    fallback-models: ${GEMINI_FALLBACK_MODELS:gemini-3.8-flash}
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:}
     price-cents: 599

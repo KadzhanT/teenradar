@@ -1,5 +1,6 @@
 package com.teenradar.trends
 
+import com.teenradar.ai.AiBusyException
 import com.teenradar.ai.GeminiClient
 import com.teenradar.decode.AiTerm
 import com.teenradar.decode.applyKnownCodes
@@ -49,7 +50,14 @@ class TrendService(
     }
 
     fun ingest(): Int {
-        val answer = gemini.generateWithSearch(INGEST_PROMPT)
+        val answer = try {
+            gemini.generateText("Use Google Search to find $INGEST_PROMPT", search = true)
+        } catch (e: AiBusyException) {
+            // ponytail: free Gemini keys have no Search-grounding quota; falls back to model knowledge
+            // (less fresh). Enabling billing in AI Studio turns live search back on, no code change.
+            log.warn("Search-grounded ingest unavailable, using model knowledge")
+            gemini.generateText("From your most recent knowledge, list $INGEST_PROMPT", search = false)
+        }
         val found = parse(answer)
         val known = terms.findBySource(Source.KNOWN)
         var added = 0
@@ -86,13 +94,14 @@ class TrendService(
 
     companion object {
         private val INGEST_PROMPT = """
-            Use Google Search to find slang words, acronyms, emoji codes and memes that US teens (ages 10-17) are actively
-            using in the last 30 days. Prefer terms that are new or newly trending. Include anything parents should worry
+            slang words, acronyms, emoji codes and memes that US teens (ages 10-17) are actively using right now. Prefer terms that are new or newly trending. Include anything parents should worry
             about (drug, sexual, self-harm, sextortion codes) if it is genuinely circulating, but do not invent dangers.
 
             Return ONLY a JSON array (no prose, no markdown) of up to 15 objects:
             {"term": "...", "meaning": "...", "risk": "GREEN|YELLOW|RED", "why": "one sentence", "howToTalk": "one sentence a parent can say"}
             Meanings must be accurate to how teens actually use the term.
+            Only include terms that are widely documented (news articles, Know Your Meme, Dictionary.com, parenting guides).
+            If you are not highly confident a term is real and widespread, leave it out. Fewer real terms beat more guesses.
         """.trimIndent()
     }
 }

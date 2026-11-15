@@ -11,7 +11,12 @@ data class AppProperties(
     val stripe: Stripe,
     val resend: Resend,
 ) {
-    data class Gemini(val apiKey: String, val model: String, val dailyCap: Int)
+    data class Gemini(
+        val apiKey: String,
+        val model: String,
+        /** Comma-separated, tried in order when the main model is overloaded. */
+        val fallbackModels: String,
+    )
 
     data class Stripe(val secretKey: String, val priceCents: Int)
 

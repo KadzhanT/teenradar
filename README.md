@@ -31,7 +31,7 @@ src/main/resources/db/migration/  schema + curated codes (V2)
 ## Run locally
 
 ```bash
-docker run -d --name teenradar-pg -e POSTGRES_PASSWORD=pg -p 5433:5432 postgres:16
+docker run -d --name teenradar-pg -e POSTGRES_PASSWORD=pg -p 127.0.0.1:5433:5432 postgres:16
 cp .env.example .env                 # fill in GEMINI_API_KEY (https://aistudio.google.com/apikey)
 ./gradlew bootRun                    # http://localhost:8080
 ./gradlew test
@@ -41,7 +41,7 @@ cp .env.example .env                 # fill in GEMINI_API_KEY (https://aistudio.
 | Env var | Purpose |
 |---|---|
 | `DATABASE_URL`, `DB_USER`, `DB_PASSWORD` | JDBC Postgres, e.g. Neon: `jdbc:postgresql://<host>/<db>?sslmode=require` |
-| `GEMINI_API_KEY`, `GEMINI_MODEL` | AI (default model `gemini-2.5-flash`) |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | AI (default `gemini-3.5-flash-lite`, falls back to `GEMINI_FALLBACK_MODELS` on 503/429/timeout) |
 | `STRIPE_SECRET_KEY` | `sk_test_...` |
 | `RESEND_API_KEY`, `MAIL_FROM` | weekly brief |
 | `APP_BASE_URL` | public URL, used in Stripe redirects, emails, sitemap |

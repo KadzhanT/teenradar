@@ -1,6 +1,7 @@
 package com.teenradar.decode
 
 import com.teenradar.AppProperties
+import com.teenradar.ai.AiBlockedException
 import com.teenradar.ai.GeminiClient
 import com.teenradar.ai.Image
 import com.teenradar.trends.Risk
@@ -80,7 +81,12 @@ class DecodeService(
 
     private fun ask(message: String, image: Image?): AiDecode {
         val prompt = if (message.isEmpty()) "Decode the conversation in this screenshot." else "Message:\n<<<\n$message\n>>>"
-        return gemini.generateJson(SYSTEM_PROMPT, prompt, image, SCHEMA, AiDecode::class.java)
+        return try {
+            gemini.generateJson(SYSTEM_PROMPT, prompt, image, SCHEMA, AiDecode::class.java)
+        } catch (e: AiBlockedException) {
+            // The model refused (usually its safety filter). Known codes are still matched in applyKnownCodes.
+            BLOCKED_FALLBACK
+        }
     }
 
     /** Every decoded term feeds the community trend signal ("N parents asked this week"). */
@@ -92,6 +98,14 @@ class DecodeService(
 
     companion object {
         const val MAX_TEXT = 2000
+
+        private val BLOCKED_FALLBACK = AiDecode(
+            translation = "Our AI could not fully read this message, often a sign it touches a sensitive topic. " +
+                "Below is everything that matched our verified list of codes.",
+            terms = emptyList(),
+            overallRisk = Risk.YELLOW,
+            howToTalk = "Ask calmly and with curiosity what the message meant: \"I saw something I didn't understand, can you explain it to me?\"",
+        )
 
         private val RISK = mapOf("type" to "STRING", "enum" to Risk.entries.map { it.name })
 
@@ -123,7 +137,8 @@ class DecodeService(
             A parent pasted a message (or a screenshot) from their 10-17 year old. Help them understand it.
 
             - translation: rewrite the whole message in plain adult English.
-            - terms: every slang word, acronym, emoji code or meme reference (skip ordinary words). Keep "term" exactly as written.
+            - terms: every slang word, acronym, emoji code or meme reference a parent might NOT understand. Keep "term" exactly as written.
+              Skip ordinary words and slang every adult already knows (bro, dude, lol, omg, pull up, hang out, tonight).
               meaning: short, what it means in THIS context. why: one sentence on why you rated the risk.
               risk:
                 GREEN  = normal, harmless teen talk.
